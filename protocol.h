@@ -9,6 +9,8 @@ struct __attribute__((packed)) bfup_payload {
 	uint8_t data[];
 }
 
+void putInfo(uint8_t **ptr, uint16_t len, const void *data);
+
 bfup_payload *mkPlay(int fd, char *target_dr);
 bfup_payload *mkEmpty(uint8_t type); // this shit doesnt really do anything just set the type field for START, END, DONE
 bfup_payload *mkRule(enum Rule rules);
