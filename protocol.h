@@ -34,4 +34,5 @@ struct bfup_payload *mkContent(char *content);
 struct target_file *parsePlay(uint8_t *buff);
 struct rule *parseRule(uint8_t *buff);
 char *parseWeapon(uint8_t *buff);
+char *parseResult(uint8_t *buff);
 #endif

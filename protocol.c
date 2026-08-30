@@ -164,3 +164,37 @@ char *parseWeapon(uint8_t *buff) {
 	weap[n] = '\0';
 	return weap;
 }
+
+struct bfup_payload *mkResult(uint8_t result) {
+	char *res = result == 1 ? "BEAT" : "NOOB";
+	uint16_t data_len = strlen(res) + sizeof(uint16_t);
+	struct bfup_payload *payload = (struct bfup_payload *) calloc(1, sizeof(struct bfup_payload) + data_len);
+
+	if (!payload) return NULL;
+
+	payload->version_n_type = (1 << 4) | 0x05;
+	payload->data_len = data_len;
+
+	uint8_t *ptr = payload->data;
+	putInfo(&ptr, strlen(res), res);
+
+	return payload;
+}
+
+char *parseResult(uint8_t *buff) {
+	struct bfup_payload *p = (struct bfup_payload *) buff;
+
+	if ((p->version_n_type & 0x0F) != 0x05) return NULL;
+
+	uint16_t n;
+	uint8_t *data = p->data;
+
+	memcpy(&n, data, sizeof(n));
+	char *res = (char *) malloc(sizeof(char) * n + 1);
+	if (!res) return NULL;
+
+	data += sizeof(uint16_t);
+	memcpy(res, data, n);
+	res[n] = '\0';
+	return res;
+}
