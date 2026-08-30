@@ -104,8 +104,8 @@ struct bfup_payload *mkRule(char **rules, uint16_t n) {
 	return payload;
 }
 
-struct rule *parseRule(struct bfup_payload *p) {
-	//struct bfup_payload *p = (struct bfup_payload *) buff;
+struct rule *parseRule(uint8_t *buff) {
+	struct bfup_payload *p = (struct bfup_payload *) buff;
 
 	if ((p->version_n_type & 0x0F) != 0x01) return NULL;
 	uint8_t *data = p->data;
@@ -132,4 +132,35 @@ struct rule *parseRule(struct bfup_payload *p) {
 	}
 	return rules;
 
+}
+
+struct bfup_payload *mkWeapon(char *weapon) {
+	uint16_t data_len = strlen(weapon) + sizeof(uint16_t);
+	struct bfup_payload *payload = (struct bfup_payload *) calloc(1, sizeof(struct bfup_payload) + data_len);
+
+	if (!payload) return NULL;
+
+	payload->version_n_type = (1 << 4) | 0x04; // ts should be 00010100 for version 1 and msg type 4 (weapon)
+	payload->data_len = data_len;
+
+	uint8_t *ptr = payload->data;
+	putInfo(&ptr, strlen(weapon), weapon);
+	return payload;
+}
+
+char *parseWeapon(uint8_t *buff) {
+	struct bfup_payload *p = (struct bfup_payload *) buff;
+
+	if ((p->version_n_type & 0x0F) != 0x04) return NULL;
+
+	uint16_t n;
+	uint8_t *data = p->data;
+
+	memcpy(&n, data, sizeof(n));
+	char *weap = (char *) malloc(sizeof(char) * n + 1);
+
+	data += sizeof(uint16_t);
+	memcpy(weap, data, n);
+	weap[n] = '\0';
+	return weap;
 }
