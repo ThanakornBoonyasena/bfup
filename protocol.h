@@ -34,5 +34,6 @@ uint8_t checkType(uint8_t * buff);
 struct target_file *parsePlay(uint8_t *buff);
 struct rule *parseRule(uint8_t *buff);
 char *parseWeapon(uint8_t *buff);
+char *parseNo(uint8_t *buff);
 char *parseResult(uint8_t *buff);
 #endif
