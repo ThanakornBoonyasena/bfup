@@ -15,9 +15,16 @@ struct target_file {
 	char *dir;
 };
 
+struct rule {
+	uint16_t n;
+	char **rules;
+};
+
 void putInfo(uint8_t **ptr, uint16_t len, const void *data);
+uint8_t checkType(uint8_t * buff);
 
 struct bfup_payload *mkPlay(int fd, char* filename, char *target_dr);
+struct bfup_payload *mkRule(char **rules, uint16_t n);
 struct bbfup_payload *mkEmpty(uint8_t type); // this shit doesnt really do anything just set the type field for START, END, DONE
 //struct bbfup_payload *mkRule(enum Rule rules);
 struct bbfup_payload *mkNo(char *msg);
@@ -25,5 +32,7 @@ struct bbfup_payload *mkNo(char *msg);
 struct bbfup_payload *mkResult(uint8_t result);
 struct bbfup_payload *mkContent(char *content);
 
-struct target_file *parsePlay(struct bfup_payload *p);
+struct target_file *parsePlay(uint8_t *buff);
+//struct rule *parseRule(uint8_t *buff);
+struct rule *parseRule(struct bfup_payload *p);
 #endif
