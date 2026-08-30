@@ -455,35 +455,38 @@ int main(int argc, char* argv[]) {
 					break;
 
 				case STATE_WAITING_FOR_CONTENT:
+					printf("\n--- [STATE: WAITING_FOR_CONTENT] ---\n");
+    					char contentBuffer[target_file->size];
+    					char *buffPtr = contentBuffer;
+    					size_t total_received = 0;
 
-                	printf("\n--- [STATE: WAITING_FOR_CONTENT] ---\n");
+    					while (1) {
 
-                	bytes_received = recv(client_fd, buf, sizeof(buf), 0);
-					if (bytes_received == 0) {
-    				// Client closed the connection
-    					printf("Client disconnected\n");
-    					connected = false;
-    					close(client_fd);
-					} else if (bytes_received < 0) {
-    					perror("recv");
+        					bytes_received = recv(client_fd, buf, sizeof(buf), 0);
+
+					        msg_type = checkType(buf);
+
+        					if (msg_type == BFUP_END) break;
+						if (msg_type == BFUP_CONTENT) {
+							char *tmp = parseContent(buf);
+        						memcpy(buffPtr, tmp, bytes_received);
+        						buffPtr += bytes_received;
+        						total_received += bytes_received;
+						}
+	
 					}
 
-                	msg_type = checkType(buf);
-                	char content_buf[target_file->size];
-                	while (1) {
-                		bytes_received = recv(client_fd, buf, 1024, 0);
-                		msg_type = checkType(buf);
-                		if (msg_type == BFUP_END) {
-                			break;
-                		}
+    puts("Receive End, Start writing file");
 
-                		strcat(content_buf, buf);
-                	}
+    fwrite(contentBuffer, 1, total_received, file);
 
-                	fclose(file);
-					break;
+    fclose(file);
+
+    printf("Wrote %zu bytes\n", total_received);
+
+    break;	
+    				}
     		}
-    	}
 	}
 
 

@@ -36,4 +36,7 @@ struct rule *parseRule(uint8_t *buff);
 char *parseWeapon(uint8_t *buff);
 char *parseNo(uint8_t *buff);
 char *parseResult(uint8_t *buff);
+char *parseContent(uint8_t *buff);
+
+uint16_t getPacketLength(uint8_t *buff);
 #endif

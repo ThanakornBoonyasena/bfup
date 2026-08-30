@@ -274,3 +274,9 @@ struct bfup_payload *mkEmpty(uint8_t type) {
 	payload->data_len = 0;
 	return payload;
 }
+
+uint16_t getPacketLength(uint8_t *buff) {
+	struct bfup_payload *p = (struct bfup_payload *) buff;
+	return p->data_len + 1;
+}
+
