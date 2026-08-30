@@ -177,7 +177,6 @@ int main(int argc, char *argv[]) {
                 );
 
                 printf("%d\n", n);
-                exit(1);
 
                 uint16_t expected_len = getPacketLength(recv_buf);
                 uint16_t total = n;
