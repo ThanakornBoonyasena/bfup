@@ -33,6 +33,5 @@ struct bbfup_payload *mkResult(uint8_t result);
 struct bbfup_payload *mkContent(char *content);
 
 struct target_file *parsePlay(uint8_t *buff);
-//struct rule *parseRule(uint8_t *buff);
-struct rule *parseRule(struct bfup_payload *p);
+struct rule *parseRule(uint8_t *buff);
 #endif
