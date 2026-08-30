@@ -367,8 +367,8 @@ int main(int argc, char *argv[]) {
                 if (type == TYPE_DONE) {
                     printf("<- Received DONE! File transfer completed successfully.\n");
                     
-                    // วนกลับไปรอส่งไฟล์ใหม่
-                    state = STATE_WAITING_FOR_CALL; 
+                    // จบการทำงานเลย
+                    break;
                 } 
                 else {
                     printf("[Warning] Expected TYPE_DONE but got: %d\n", type);
