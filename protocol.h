@@ -4,7 +4,7 @@
 #define PROTOCOL_H
 
 struct __attribute__((packed)) bfup_payload {
-	uint8_t version_n_type; // first 4 bytes for version and the rest for msg type
+	uint8_t version_n_type; // first 4 bits for version and the rest for msg type
 	uint16_t data_len;
 	uint8_t data[];
 };
