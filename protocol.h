@@ -9,6 +9,12 @@ struct __attribute__((packed)) bfup_payload {
 	uint8_t data[];
 };
 
+struct target_file {
+	char *name;
+	uint16_t size;
+	char *dir;
+};
+
 void putInfo(uint8_t **ptr, uint16_t len, const void *data);
 
 struct bfup_payload *mkPlay(int fd, char* filename, char *target_dr);
@@ -19,5 +25,5 @@ struct bbfup_payload *mkNo(char *msg);
 struct bbfup_payload *mkResult(uint8_t result);
 struct bbfup_payload *mkContent(char *content);
 
+struct target_file *parsePlay(struct bfup_payload *p);
 #endif
-
