@@ -214,7 +214,9 @@ int main(int argc, char* argv[]) {
 
 	srand((unsigned)time(NULL));
 
-	if (argc < 2 || argc > 1001) {
+
+
+	if (argc < 4 || argc > 1001) {
 		fprintf(stderr,
 			"Usage: %s option1 option2 ... optionN\n"
 			"N must be between 3 and 1000\n",
@@ -348,13 +350,13 @@ int main(int argc, char* argv[]) {
 						bool valid = validate_play_payload;
 						if (!valid) {
 							payload = mkNo("bad condition");
-							send(client_fd, (void *)payload, sizeof(payload), 0);
+							send(client_fd, (void *)payload, payload->data_len + 3, 0);
 						} else {
 		    				generate_relations(rules.beats, rules.n);
 
 		    				payload = mkRule(argv + 1, rules.n);
 		    				printf("%d\n", payload->data_len);
-							send(client_fd, (void *)payload, sizeof(payload), 0);
+							send(client_fd, (void *)payload, payload->data_len + 3, 0);
 							state = STATE_WAITING_FOR_START;
 						}
 					}
@@ -414,14 +416,15 @@ int main(int argc, char* argv[]) {
 
 						char* client_weapon = parseWeapon(buf);
 						uint8_t result = determine_result(&rules, server_weapon, client_weapon, argv + 1);
+						printf("%d\n", result);
 						if (result == 0) {
+							payload = mkResult(1);
+							send(client_fd, (void *)payload, payload->data_len + 3, 0);
 							state = STATE_WAITING_FOR_CONTENT;
-							payload = mkResult(-1);
-							send(client_fd, (void *)payload, sizeof(payload), 0);
 						} else if (result == 1) {
 							state = STATE_WAITING_FOR_PLAY;
-							payload = mkResult(result);
-							send(client_fd, (void *)payload, sizeof(payload), 0);
+							payload = mkResult(-1);
+							send(client_fd, (void *)payload, payload->data_len + 3, 0);
 						}
 					}
 					break;
@@ -432,7 +435,6 @@ int main(int argc, char* argv[]) {
 
 
 					bytes_received = recv(client_fd, buf, sizeof(buf), 0);
-
 
 					if (bytes_received == 0) {
     				// Client closed the connection
