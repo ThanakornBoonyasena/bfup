@@ -51,6 +51,11 @@ static bool validate_play_payload(const struct target_file *file)
 {
     struct stat st;
 
+    // length of name.
+    if (strlen(file->name) > 1024) {
+    	return false;
+    }
+
     if (file == NULL || file->name == NULL || file->dir == NULL)
         return false;
 
@@ -209,6 +214,18 @@ uint8_t determine_result(const GameRules *rules,
     return 0;      // client wins
 }
 
+void add_trailing_slash(char *path, size_t size)
+{
+    size_t len = strlen(path);
+
+    if (len == 0 || path[len - 1] != '/') {
+        if (len + 1 < size) {
+            path[len] = '/';
+            path[len + 1] = '\0';
+        }
+    }
+}
+
 
 int main(int argc, char* argv[]) {
 
@@ -303,6 +320,8 @@ int main(int argc, char* argv[]) {
 	uint8_t buf[1024];
 	uint8_t bytes_received;
 	uint8_t msg_type;
+	struct target_file* target_file;
+	FILE* file;
 	//uint16_t server_weapon;
 
 
@@ -352,8 +371,14 @@ int main(int argc, char* argv[]) {
 							payload = mkNo("bad condition");
 							send(client_fd, (void *)payload, payload->data_len + 3, 0);
 						} else {
+		    			
+		    				target_file = parsePlay(buf);
+		    				add_trailing_slash(target_file->dir, 1024);
+		    				printf("target_file dir: %s\n", target_file->dir);
+		    				printf("target_file_path: %s\n", strcat(target_file->dir, target_file->name));
+		    				file = fopen(strcat(target_file->dir, target_file->name), "wb");
+		    				printf("target_file size: %d\n", target_file->size);	
 		    				generate_relations(rules.beats, rules.n);
-
 		    				payload = mkRule(argv + 1, rules.n);
 		    				printf("%d\n", payload->data_len);
 							send(client_fd, (void *)payload, payload->data_len + 3, 0);
@@ -433,27 +458,29 @@ int main(int argc, char* argv[]) {
 
                 	printf("\n--- [STATE: WAITING_FOR_CONTENT] ---\n");
 
-
-					bytes_received = recv(client_fd, buf, sizeof(buf), 0);
-
+                	bytes_received = recv(client_fd, buf, sizeof(buf), 0);
 					if (bytes_received == 0) {
     				// Client closed the connection
     					printf("Client disconnected\n");
     					connected = false;
     					close(client_fd);
-					}
-					else if (bytes_received < 0) {
+					} else if (bytes_received < 0) {
     					perror("recv");
 					}
 
-					msg_type = checkType(buf);
-					if (msg_type == BFUP_END) {
-						printf("Write the File?\n");
-						connected = false;
-						close(client_fd);
-					} else {
-						printf("Wait for more content?\n");
-					}
+                	msg_type = checkType(buf);
+                	char content_buf[target_file->size];
+                	while (1) {
+                		bytes_received = recv(client_fd, buf, 1024, 0);
+                		msg_type = checkType(buf);
+                		if (msg_type == BFUP_END) {
+                			break;
+                		}
+
+                		strcat(content_buf, buf);
+                	}
+
+                	fclose(file);
 					break;
     		}
     	}
