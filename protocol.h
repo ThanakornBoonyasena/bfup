@@ -21,7 +21,6 @@ struct rule {
 };
 
 void putInfo(uint8_t **ptr, uint16_t len, const void *data);
-uint8_t checkType(uint8_t * buff);
 
 struct bfup_payload *mkPlay(int fd, char* filename, char *target_dr);
 struct bfup_payload *mkRule(char **rules, uint16_t n);
@@ -31,6 +30,7 @@ struct bfup_payload *mkWeapon(char *weapon);
 struct bfup_payload *mkResult(uint8_t result);
 struct bfup_payload *mkContent(char *content);
 
+uint8_t checkType(uint8_t * buff);
 struct target_file *parsePlay(uint8_t *buff);
 struct rule *parseRule(uint8_t *buff);
 char *parseWeapon(uint8_t *buff);

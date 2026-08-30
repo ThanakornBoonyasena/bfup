@@ -198,3 +198,79 @@ char *parseResult(uint8_t *buff) {
 	res[n] = '\0';
 	return res;
 }
+
+struct bfup_payload *mkContent(char *content) {
+	uint16_t data_len = strlen(content) + sizeof(uint16_t);
+	struct bfup_payload *payload = (struct bfup_payload *) calloc(1, sizeof(struct bfup_payload) + data_len);
+
+	if (!payload) return NULL;
+
+	payload->version_n_type = (1 << 4) | 0x06;
+	payload->data_len = data_len;
+
+	uint8_t *ptr = payload->data;
+	putInfo(&ptr, strlen(content), content);
+
+	return payload;
+}
+
+char *parseContent(uint8_t *buff) {
+	struct bfup_payload *p = (struct bfup_payload *) buff;
+
+	if ((p->version_n_type & 0x0F) != 0x06) return NULL;
+
+	uint16_t n;
+	uint8_t *data = p->data;
+
+	memcpy(&n, data, sizeof(n));
+	char *content = (char *) malloc(sizeof(char) * n + 1);
+	if (!content) return NULL;
+
+	data += sizeof(uint16_t);
+	memcpy(content, data, n);
+	content[n] = '\0';
+	return content;
+}
+
+struct bfup_payload *mkNo(char *msg) {
+	uint16_t data_len = strlen(msg) + sizeof(uint16_t);
+	struct bfup_payload *payload = (struct bfup_payload *) calloc(1, sizeof(struct bfup_payload) + data_len);
+
+	if (!payload) return NULL;
+
+	payload->version_n_type = (1 << 4) | 0x02;
+	payload->data_len = data_len;
+
+	uint8_t *ptr = payload->data;
+	putInfo(&ptr, strlen(msg), msg);
+
+	return payload;
+}
+
+char *parseNo(uint8_t *buff) {
+	struct bfup_payload *p = (struct bfup_payload *) buff;
+
+	if ((p->version_n_type & 0x0F) != 0x02) return NULL;
+
+	uint16_t n;
+	uint8_t *data = p->data;
+
+	memcpy(&n, data, sizeof(n));
+	char *msg = (char *) malloc(sizeof(char) * n + 1);
+	if (!msg) return NULL;
+
+	data += sizeof(uint16_t);
+	memcpy(msg, data, n);
+	msg[n] = '\0';
+	return msg;
+}
+
+struct bfup_payload *mkEmpty(uint8_t type) {
+	struct bfup_payload *payload = (struct bfup_payload *) calloc(1, sizeof(struct bfup_payload));
+
+	if (!payload) return NULL;
+
+	payload->version_n_type = (1 << 4) | type;
+	payload->data_len = 0;
+	return payload;
+}
