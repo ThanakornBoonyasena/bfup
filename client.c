@@ -36,6 +36,7 @@ int send_all(int sock_fd, const uint8_t *buf, size_t len) {
     size_t total_sent = 0;
     while (total_sent < len) {
         ssize_t sent = send(sock_fd, buf + total_sent, len - total_sent, 0);
+    	printf("sent %d\n", sent);
         if (sent <= 0) return -1;
         total_sent += sent;
     }
@@ -333,6 +334,7 @@ int main(int argc, char *argv[]) {
                         content[n] = '\0';
                         struct bfup_payload *content_packet = mkContent(content);
 
+			printf("type %d", content_packet);
                         send_packet(sock_fd, content_packet);
 
                         // ส่ง END
@@ -367,7 +369,11 @@ int main(int argc, char *argv[]) {
                     printf("<- Received DONE! File transfer completed successfully.\n");
                     
                     // จบการทำงานเลย
-                    break;
+
+    fclose(fp);
+    printf("[TCP] Client finished and socket closed.\n");
+    exit(0);
+
                 } 
                 else {
                     printf("[Warning] Expected TYPE_DONE but got: %d\n", type);
@@ -380,8 +386,5 @@ int main(int argc, char *argv[]) {
                 break;
         }
     }
-
-    fclose(fp);
-    printf("[TCP] Client finished and socket closed.\n");
     return 0;
 }
